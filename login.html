@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Auralis — Sign in</title>
+
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      background: #090b10;
+      color: #f5f7fb;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at 84% 8%, rgba(92, 69, 191, 0.34), transparent 33%),
+        radial-gradient(circle at 8% 86%, rgba(28, 167, 151, 0.19), transparent 38%),
+        #090b10;
+    }
+
+    .page {
+      width: 100%;
+      min-height: 100vh;
+      padding: 34px 22px 64px 22px;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .brand {
+      margin-bottom: 38px;
+      color: #ffffff;
+      font-size: 34px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-mark {
+      display: inline-block;
+      width: 15px;
+      height: 15px;
+      margin-right: 10px;
+      border-radius: 50%;
+      background: #4bdfcf;
+      box-shadow: 0 0 17px rgba(75, 223, 207, 0.55);
+    }
+
+    .layout {
+      display: flex;
+      flex-wrap: wrap;
+      min-height: 620px;
+      overflow: hidden;
+      border: 1px solid #2d3544;
+      border-radius: 22px;
+      background: #111620;
+      box-shadow: 0 24px 76px rgba(0, 0, 0, 0.30);
+    }
+
+    .intro {
+      width: 44%;
+      min-width: 330px;
+      padding: 57px 51px;
+      background:
+        radial-gradient(circle at 78% 25%, rgba(102, 231, 214, 0.40), transparent 22%),
+        linear-gradient(143deg, #252250, #122533 73%);
+    }
+
+    .eyebrow {
+      margin: 0 0 15px 0;
+      color: #74f0df;
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .intro h1 {
+      margin: 0;
+      color: #ffffff;
+      font-size: 48px;
+      line-height: 1.08;
+      letter-spacing: -0.8px;
+    }
+
+    .intro p {
+      margin: 23px 0 0 0;
+      color: #c0c9d7;
+      font-size: 18px;
+      line-height: 1.56;
+    }
+
+    .pair-box {
+      margin-top: 40px;
+      padding: 20px;
+      border: 1px solid rgba(202, 255, 247, 0.25);
+      border-radius: 14px;
+      background: rgba(7, 12, 19, 0.37);
+    }
+
+    .pair-label {
+      color: #b4bfce;
+      font-size: 13px;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+    }
+
+    .pair-code {
+      margin-top: 9px;
+      color: #ffffff;
+      font-size: 34px;
+      font-weight: bold;
+      letter-spacing: 7px;
+    }
+
+    .pair-help {
+      margin-top: 12px;
+      color: #aeb8c7;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .form-side {
+      width: 56%;
+      min-width: 390px;
+      padding: 48px 52px;
+      background: #121720;
+    }
+
+    .tabs {
+      display: flex;
+      margin-bottom: 34px;
+      border-bottom: 1px solid #303746;
+    }
+
+    .tab {
+      position: relative;
+      padding: 0 0 15px 0;
+      margin-right: 31px;
+      border: 0;
+      background: transparent;
+      color: #9faabb;
+      cursor: pointer;
+      font-size: 17px;
+      font-weight: bold;
+    }
+
+    .tab.active {
+      color: #ffffff;
+    }
+
+    .tab.active:after {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 3px;
+      border-radius: 3px;
+      background: #50dfce;
+      content: "";
+    }
+
+    .form-title {
+      margin: 0;
+      color: #ffffff;
+      font-size: 31px;
+    }
+
+    .form-subtitle {
+      margin: 12px 0 28px 0;
+      color: #a8b3c4;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    .field-row {
+      display: flex;
+      margin-left: -8px;
+      margin-right: -8px;
+    }
+
+    .field-half {
+      width: 50%;
+      padding: 0 8px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #d7dce7;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-height: 49px;
+      padding: 12px 14px;
+      border: 1px solid #3a4455;
+      border-radius: 10px;
+      outline: none;
+      background: #0b1017;
+      color: #ffffff;
+      font-size: 16px;
+      transition: border-color 0.15s linear, box-shadow 0.15s linear;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: #55e3d2;
+      box-shadow: 0 0 0 3px rgba(85, 227, 210, 0.18);
+    }
+
+    select option {
+      color: #111111;
+      background: #ffffff;
+    }
+
+    .primary-button {
+      display: block;
+      width: 100%;
+      min-height: 54px;
+      margin-top: 28px;
+      padding: 14px 18px;
+      border: 1px solid #70f2e1;
+      border-radius: 11px;
+      background: #51ddcc;
+      color: #081614;
+      cursor: pointer;
+      font-size: 17px;
+      font-weight: bold;
+      transition: transform 0.12s linear, opacity 0.12s linear;
+    }
+
+    .primary-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .primary-button:disabled {
+      cursor: wait;
+      opacity: 0.58;
+    }
+
+    .status {
+      display: none;
+      margin-top: 20px;
+      padding: 14px 15px;
+      border: 1px solid #465266;
+      border-radius: 10px;
+      background: #19202c;
+      color: #dce3ef;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .status.show {
+      display: block;
+    }
+
+    .status.error {
+      border-color: #8f4b57;
+      background: #321c23;
+      color: #ffd6d9;
+    }
+
+    .status.success {
+      border-color: #367d6e;
+      background: #17312f;
+      color: #c3fff3;
+    }
+
+    .fine-print {
+      margin-top: 20px;
+      color: #8490a3;
+      font-size: 12px;
+      line-height: 1.52;
+    }
+
+    .mode {
+      display: none;
+    }
+
+    .mode.active {
+      display: block;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media screen and (max-width: 820px) {
+      .page {
+        padding: 22px 14px 42px 14px;
+      }
+
+      .brand {
+        margin-bottom: 22px;
+      }
+
+      .layout {
+        display: block;
+      }
+
+      .intro,
+      .form-side {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .intro {
+        padding: 38px 28px;
+      }
+
+      .form-side {
+        padding: 37px 28px;
+      }
+
+      .intro h1 {
+        font-size: 38px;
+      }
+
+      .field-row {
+        display: block;
+        margin: 0;
+      }
+
+      .field-half {
+        width: 100%;
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="shell">
+      <div class="brand"><span class="brand-mark"></span>Auralis</div>
+
+      <main class="layout">
+        <section class="intro">
+          <p class="eyebrow">TV pairing</p>
+          <h1>Bring your music to the big screen.</h1>
+
+          <p>
+            Sign in or create an Auralis account to connect your Samsung TV. After successful authentication, your TV app will automatically load your playlists and songs.
+          </p>
+
+          <div class="pair-box">
+            <div class="pair-label">TV pairing code</div>
+            <div id="pairCodeDisplay" class="pair-code">------</div>
+            <div id="pairHelp" class="pair-help">
+              Enter the code shown on your TV, or open this page using the TV QR code.
+            </div>
+          </div>
+        </section>
+
+        <section class="form-side">
+          <div class="tabs">
+            <button id="signInTab" class="tab active" type="button">Sign in</button>
+            <button id="signUpTab" class="tab" type="button">Create account</button>
+          </div>
+
+          <form id="signInForm" class="mode active" novalidate>
+            <h2 class="form-title">Welcome back</h2>
+            <p class="form-subtitle">Sign in to connect this browser session and your TV.</p>
+
+            <div class="field">
+              <label for="signInEmail">Email address</label>
+              <input id="signInEmail"
+                     type="email"
+                     autocomplete="email"
+                     placeholder="you@example.com"
+                     required>
+            </div>
+
+            <div class="field">
+              <label for="signInPassword">Password</label>
+              <input id="signInPassword"
+                     type="password"
+                     autocomplete="current-password"
+                     placeholder="Your password"
+                     required>
+            </div>
+
+            <button id="signInButton" class="primary-button" type="submit">
+              Sign in and connect TV
+            </button>
+          </form>
+
+          <form id="signUpForm" class="mode" novalidate>
+            <h2 class="form-title">Create your account</h2>
+            <p class="form-subtitle">Set up Auralis, then manage music from mobile or desktop.</p>
+
+            <div class="field-row">
+              <div class="field-half">
+                <div class="field">
+                  <label for="signUpName">Name</label>
+                  <input id="signUpName"
+                         type="text"
+                         autocomplete="name"
+                         placeholder="Your name"
+                         required>
+                </div>
+              </div>
+
+              <div class="field-half">
+                <div class="field">
+                  <label for="signUpAge">Age</label>
+                  <input id="signUpAge"
+                         type="number"
+                         min="13"
+                         max="120"
+                         inputmode="numeric"
+                         placeholder="Age"
+                         required>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="signUpEmail">Email address</label>
+              <input id="signUpEmail"
+                     type="email"
+                     autocomplete="email"
+                     placeholder="you@example.com"
+                     required>
+            </div>
+
+            <div class="field">
+              <label for="signUpCountry">Country</label>
+              <input id="signUpCountry"
+                     type="text"
+                     autocomplete="country-name"
+                     placeholder="India"
+                     required>
+            </div>
+
+            <div class="field">
+              <label for="signUpPassword">Password</label>
+              <input id="signUpPassword"
+                     type="password"
+                     autocomplete="new-password"
+                     minlength="6"
+                     placeholder="At least 6 characters"
+                     required>
+            </div>
+
+            <button id="signUpButton" class="primary-button" type="submit">
+              Create account and connect TV
+            </button>
+          </form>
+
+          <div id="status" class="status" role="status"></div>
+
+          <p class="fine-print">
+            After a successful sign-in or sign-up, Auralis links the one-time TV code and redirects you to <code>mobileapp.html</code>. If email confirmation is enabled in Supabase Auth, confirm your email first, then sign in again.
+          </p>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    /*
+      Auralis mobile/desktop authentication and TV pairing page.
+      Uses direct Supabase Auth REST APIs through XMLHttpRequest to stay
+      dependency-free. Do not put a Supabase service-role key in this file.
+    */
+
+    var CONFIG = {
+      supabaseUrl: 'https://jjugpbrftjsibupnhhbs.supabase.co',
+      supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpqdWdwYnJmdGpzaWJ1cG5oaGJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4MjYzNDcsImV4cCI6MjEwNTQwMjM0N30.u9AkX19MDOeQQSdPx-eIRr-iMkx_vfWDtCNaMe2q8-c',
+
+      /*
+        The target page requested by you. Keep this as a same-origin local path
+        when possible; alter it only if your mobile app is deployed elsewhere.
+      */
+      mobileRedirect: 'mobileapp.html'
+    };
+
+    var State = {
+      mode: 'signin',
+      pairCode: '',
+      busy: false
+    };
+
+    var Api = {
+      request: function (method, path, body, token, callback) {
+        var xhr = new XMLHttpRequest();
+
+        xhr.open(method, CONFIG.supabaseUrl + path, true);
+        xhr.setRequestHeader('apikey', CONFIG.supabaseAnonKey);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+
+        if (token) {
+          xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+        }
+
+        xhr.onreadystatechange = function () {
+          var json = null;
+          var ok;
+
+          if (xhr.readyState !== 4) return;
+
+          ok = xhr.status >= 200 && xhr.status < 300;
+
+          try {
+            json = xhr.responseText ? JSON.parse(xhr.responseText) : null;
+          } catch (e) {
+            json = null;
+          }
+
+          callback(ok, json, xhr.status, xhr.responseText);
+        };
+
+        xhr.onerror = function () {
+          callback(false, null, 0, 'Network error');
+        };
+
+        try {
+          xhr.send(body ? JSON.stringify(body) : null);
+        } catch (e) {
+          callback(false, null, 0, String(e));
+        }
+      },
+
+      post: function (path, body, token, callback) {
+        this.request('POST', path, body, token, callback);
+      },
+
+      patch: function (path, body, token, callback) {
+        this.request('PATCH', path, body, token, callback);
+      }
+    };
+
+    function init() {
+      State.pairCode = readPairCodeFromUrl();
+
+      document.getElementById('pairCodeDisplay').textContent = State.pairCode || '------';
+
+      if (State.pairCode) {
+        document.getElementById('pairHelp').textContent =
+          'Code detected from the TV QR link. Complete sign-in or sign-up to connect automatically.';
+      }
+
+      document.getElementById('signInTab').addEventListener('click', function () {
+        setMode('signin');
+      }, false);
+
+      document.getElementById('signUpTab').addEventListener('click', function () {
+        setMode('signup');
+      }, false);
+
+      document.getElementById('signInForm').addEventListener('submit', function (event) {
+        prevent(event);
+        signIn();
+      }, false);
+
+      document.getElementById('signUpForm').addEventListener('submit', function (event) {
+        prevent(event);
+        signUp();
+      }, false);
+    }
+
+    function setMode(mode) {
+      State.mode = mode;
+
+      toggleClass(document.getElementById('signInTab'), 'active', mode === 'signin');
+      toggleClass(document.getElementById('signUpTab'), 'active', mode === 'signup');
+      toggleClass(document.getElementById('signInForm'), 'active', mode === 'signin');
+      toggleClass(document.getElementById('signUpForm'), 'active', mode === 'signup');
+
+      clearStatus();
+    }
+
+    function signIn() {
+      var email = trim(document.getElementById('signInEmail').value);
+      var password = document.getElementById('signInPassword').value;
+
+      if (!isEmail(email)) {
+        showStatus('Enter a valid email address.', 'error');
+        return;
+      }
+
+      if (!password) {
+        showStatus('Enter your password.', 'error');
+        return;
+      }
+
+      setBusy(true, 'signin');
+
+      Api.post(
+        '/auth/v1/token?grant_type=password',
+        {
+          email: email,
+          password: password
+        },
+        null,
+        function (ok, json, status) {
+          if (!ok || !json || !json.access_token || !json.user) {
+            setBusy(false, 'signin');
+            showStatus(authErrorText(json, status), 'error');
+            return;
+          }
+
+          completeProfileAndPair(
+            json.user,
+            json.access_token,
+            {
+              email: email
+            },
+            'signin'
+          );
+        }
+      );
+    }
+
+    function signUp() {
+      var name = trim(document.getElementById('signUpName').value);
+      var age = parseInt(document.getElementById('signUpAge').value, 10);
+      var email = trim(document.getElementById('signUpEmail').value);
+      var country = trim(document.getElementById('signUpCountry').value);
+      var password = document.getElementById('signUpPassword').value;
+
+      if (!name) {
+        showStatus('Enter your name.', 'error');
+        return;
+      }
+
+      if (isNaN(age) || age < 13 || age > 120) {
+        showStatus('Enter an age between 13 and 120.', 'error');
+        return;
+      }
+
+      if (!isEmail(email)) {
+        showStatus('Enter a valid email address.', 'error');
+        return;
+      }
+
+      if (!country) {
+        showStatus('Enter your country.', 'error');
+        return;
+      }
+
+      if (!password || password.length < 6) {
+        showStatus('Use a password with at least 6 characters.', 'error');
+        return;
+      }
+
+      setBusy(true, 'signup');
+
+      /*
+        user_metadata is stored by Supabase Auth. We also mirror it into your
+        public.users.metadata column below because your application schema includes
+        a custom public.users table.
+      */
+      Api.post(
+        '/auth/v1/signup',
+        {
+          email: email,
+          password: password,
+          data: {
+            name: name,
+            age: age,
+            country: country
+          }
+        },
+        null,
+        function (ok, json, status) {
+          var user;
+          var accessToken;
+
+          if (!ok || !json || !json.user) {
+            setBusy(false, 'signup');
+            showStatus(authErrorText(json, status), 'error');
+            return;
+          }
+
+          user = json.user;
+          accessToken = json.access_token || null;
+
+          /*
+            When Confirm Email is turned on in Supabase:
+            signup returns a user but normally no access token.
+            We cannot securely update the public profile or pair the TV until
+            the user confirms their email and signs in.
+          */
+          if (!accessToken) {
+            setBusy(false, 'signup');
+            showStatus(
+              'Account created. Check your inbox to confirm your email, then return here and sign in to connect the TV.',
+              'success'
+            );
+            setMode('signin');
+            document.getElementById('signInEmail').value = email;
+            return;
+          }
+
+          completeProfileAndPair(
+            user,
+            accessToken,
+            {
+              name: name,
+              age: age,
+              email: email,
+              country: country
+            },
+            'signup'
+          );
+        }
+      );
+    }
+
+    function completeProfileAndPair(user, token, profile, mode) {
+      upsertPublicUser(user, token, profile, function (profileOk) {
+        if (!profileOk) {
+          setBusy(false, mode);
+          showStatus(
+            'Signed in, but Auralis could not save your profile. Check the public.users RLS policy or create the recommended RPC.',
+            'error'
+          );
+          return;
+        }
+
+        claimPairCode(user, token, function (pairOk, pairMessage) {
+          setBusy(false, mode);
+
+          if (!pairOk) {
+            showStatus(pairMessage, 'error');
+            return;
+          }
+
+          showStatus('Success. Your TV is connecting now…', 'success');
+
+          setTimeout(function () {
+            redirectToMobileApp(user, token);
+          }, 850);
+        });
+      });
+    }
+
+    function upsertPublicUser(user, token, profile, callback) {
+      var metadata = {
+        name: profile.name || (user.user_metadata ? user.user_metadata.name : ''),
+        age: profile.age || (user.user_metadata ? user.user_metadata.age : null),
+        country: profile.country || (user.user_metadata ? user.user_metadata.country : ''),
+        auth_provider: 'email',
+        last_login_at: new Date().toISOString()
+      };
+
+      /*
+        Your table uses public.users(id uuid PK). This PATCH+POST implementation
+        avoids requiring a UNIQUE email constraint for PostgREST upsert.
+
+        Recommended long-term solution:
+        - auth.users trigger inserts a matching public.users row
+        - profile updates use an RPC with auth.uid() checks
+      */
+      Api.patch(
+        '/rest/v1/users?id=eq.' + encodeURIComponent(user.id),
+        {
+          email: profile.email || user.email,
+          metadata: metadata
+        },
+        token,
+        function (patchOk, patchJson, patchStatus) {
+          if (patchOk) {
+            callback(true);
+            return;
+          }
+
+          if (patchStatus !== 404 && patchStatus !== 0) {
+            /*
+              PATCH can still return a success status with no updated rows on
+              certain PostgREST settings. Try an insert next.
+            */
+          }
+
+          Api.post(
+            '/rest/v1/users',
+            {
+              id: user.id,
+              email: profile.email || user.email,
+              metadata: metadata
+            },
+            token,
+            function (insertOk) {
+              callback(insertOk);
+            }
+          );
+        }
+      );
+    }
+
+    function claimPairCode(user, token, callback) {
+      var code = State.pairCode;
+
+      if (!code) {
+        callback(
+          true,
+          'Signed in successfully. No TV pairing code was detected, so you can continue in Auralis.'
+        );
+        return;
+      }
+
+      /*
+        Demo-compatible implementation against the schema you supplied.
+
+        It marks the matching unused code as consumed and associates it with
+        the authenticated user's UUID. Its safety depends on strict RLS:
+        a client should only be permitted to claim a known pending code once.
+
+        For production, use:
+          POST /rest/v1/rpc/claim_tv_login_code
+        with a security-definer function that:
+          1. verifies auth.uid()
+          2. atomically updates exactly one unused code
+          3. rejects expired/missing codes
+          4. returns a simple success response
+      */
+      Api.patch(
+        '/rest/v1/logincodes?code=eq.' + encodeURIComponent(code) +
+        '&is_used=eq.false',
+        {
+          userid: user.id,
+          is_used: true,
+          request_metadata: {
+            claimed_at: new Date().toISOString(),
+            claimed_from: 'auralis_login_page',
+            browser_user_agent: navigator.userAgent
+          }
+        },
+        token,
+        function (ok, json, status, raw) {
+          if (!ok) {
+            callback(
+              false,
+              'Sign-in succeeded, but the TV code could not be claimed. It may have expired or database policies may be blocking the update.'
+            );
+            return;
+          }
+
+          callback(true, 'TV paired.');
+        }
+      );
+    }
+
+    function redirectToMobileApp(user, token) {
+      var target = CONFIG.mobileRedirect;
+      var query = [];
+
+      /*
+        Passing a short-lived access token in a query string is not ideal.
+        Prefer same-origin session storage or a server-side handoff in production.
+        This is included only to make the requested future mobileapp.html redirect
+        immediately usable in a simple static prototype.
+      */
+      query.push('userid=' + encodeURIComponent(user.id));
+      query.push('paired=' + encodeURIComponent(State.pairCode ? '1' : '0'));
+
+      try {
+        sessionStorage.setItem('auralis.access_token', token);
+        sessionStorage.setItem('auralis.user_id', user.id);
+      } catch (e) {}
+
+      window.location.href = target + '?' + query.join('&');
+    }
+
+    function readPairCodeFromUrl() {
+      var query = window.location.search ? window.location.search.substring(1) : '';
+      var parts = query.split('&');
+      var i;
+      var pair;
+      var key;
+      var value;
+
+      for (i = 0; i < parts.length; i++) {
+        pair = parts[i].split('=');
+        key = decodeURIComponent(pair[0] || '').toLowerCase();
+        value = decodeURIComponent((pair.slice(1).join('=') || '').replace(/\+/g, ' '));
+
+        if (key === 'logincode') {
+          return sanitizePairCode(value);
+        }
+      }
+
+      return '';
+    }
+
+    function sanitizePairCode(value) {
+      value = String(value || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+      if (value.length < 4 || value.length > 16) {
+        return '';
+      }
+
+      return value;
+    }
+
+    function showStatus(message, type) {
+      var el = document.getElementById('status');
+
+      el.textContent = message;
+      el.className = 'status show ' + (type || '');
+    }
+
+    function clearStatus() {
+      var el = document.getElementById('status');
+
+      el.textContent = '';
+      el.className = 'status';
+    }
+
+    function setBusy(isBusy, mode) {
+      var signInButton = document.getElementById('signInButton');
+      var signUpButton = document.getElementById('signUpButton');
+
+      State.busy = isBusy;
+
+      signInButton.disabled = isBusy;
+      signUpButton.disabled = isBusy;
+
+      if (isBusy && mode === 'signin') {
+        signInButton.textContent = 'Signing in…';
+      } else {
+        signInButton.textContent = 'Sign in and connect TV';
+      }
+
+      if (isBusy && mode === 'signup') {
+        signUpButton.textContent = 'Creating account…';
+      } else {
+        signUpButton.textContent = 'Create account and connect TV';
+      }
+    }
+
+    function authErrorText(json, status) {
+      if (json && json.msg) return json.msg;
+      if (json && json.message) return json.message;
+      if (json && json.error_description) return json.error_description;
+
+      if (status === 400 || status === 401) {
+        return 'Invalid email or password.';
+      }
+
+      if (status === 429) {
+        return 'Too many attempts. Please wait a moment and try again.';
+      }
+
+      return 'Authentication failed. Check your connection and Supabase Auth configuration.';
+    }
+
+    function trim(value) {
+      return String(value || '').replace(/^\s+|\s+$/g, '');
+    }
+
+    function isEmail(value) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    }
+
+    function toggleClass(el, className, enabled) {
+      var has = (' ' + el.className + ' ').indexOf(' ' + className + ' ') !== -1;
+      var regex;
+
+      if (enabled && !has) {
+        el.className += (el.className ? ' ' : '') + className;
+      } else if (!enabled && has) {
+        regex = new RegExp('(^|\\s)' + className + '(?=\\s|$)', 'g');
+        el.className = el.className.replace(regex, ' ').replace(/^\s+|\s+$/g, '');
+      }
+    }
+
+    function prevent(event) {
+      if (event && event.preventDefault) event.preventDefault();
+      if (event) event.returnValue = false;
+    }
+
+    init();
+  </script>
+</body>
+</html>
