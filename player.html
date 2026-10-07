@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Player</title>
+<style>
+:root{--red:#e50914}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#000;color:#fff;font:14px/1.4 "Helvetica Neue",Helvetica,Arial,sans-serif;overflow:hidden}
+#player{position:fixed;inset:0;background:#000;user-select:none;-webkit-user-select:none}
+#player.idle{cursor:none}
+video{width:100%;height:100%;object-fit:contain;display:block}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button:focus-visible,#vol:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.ui{transition:opacity .35s}
+.idle .ui{opacity:0;pointer-events:none}
+.shade{position:absolute;left:0;right:0;pointer-events:none}
+.shade.t{top:0;height:150px;background:linear-gradient(rgba(0,0,0,.85),transparent)}
+.shade.b{bottom:0;height:240px;background:linear-gradient(transparent,rgba(0,0,0,.92))}
+.top-bar{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;gap:12px;padding:calc(16px + env(safe-area-inset-top)) calc(24px + env(safe-area-inset-right)) 0 calc(24px + env(safe-area-inset-left))}
+h1{font-size:clamp(16px,2.2vw,24px);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ib{width:44px;height:44px;display:grid;place-items:center;border-radius:50%;opacity:.9;transition:transform .15s,opacity .15s;flex:none}
+.ib:hover{opacity:1;transform:scale(1.15)}
+.ib svg{width:28px;height:28px}
+.bottom{position:absolute;left:0;right:0;bottom:0;padding:0 calc(24px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(24px + env(safe-area-inset-left))}
+#bar{position:relative;height:24px;cursor:pointer;touch-action:none}
+.trk{position:absolute;left:0;right:0;top:10px;height:4px;background:rgba(255,255,255,.3);border-radius:3px;transition:height .15s,top .15s}
+#bar:hover .trk,#bar.drag .trk{height:6px;top:9px}
+#buf,#fill{position:absolute;left:0;top:0;height:100%;width:0;border-radius:3px}
+#buf{background:rgba(255,255,255,.35)}
+#fill{background:var(--red)}
+#thumb{position:absolute;top:5px;left:0;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--red);transform:scale(0);transition:transform .15s}
+#bar:hover #thumb,#bar.drag #thumb{transform:scale(1)}
+#tip{position:absolute;bottom:30px;left:0;transform:translateX(-50%);padding:3px 8px;border-radius:4px;background:rgba(0,0,0,.85);font-size:13px;font-variant-numeric:tabular-nums;opacity:0;pointer-events:none;transition:opacity .15s}
+#bar:hover #tip,#bar.drag #tip{opacity:1}
+.row{display:flex;align-items:center;gap:4px}
+.sp{flex:1}
+.vg{display:flex;align-items:center}
+#vol{-webkit-appearance:none;appearance:none;width:0;height:4px;margin:0;opacity:0;border-radius:2px;cursor:pointer;background:linear-gradient(to right,#fff var(--v,100%),rgba(255,255,255,.3) var(--v,100%));transition:width .2s,opacity .2s,margin .2s}
+.vg:hover #vol,#vol:focus-visible{width:90px;opacity:1;margin:0 10px 0 4px}
+#vol::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:#fff}
+#vol::-moz-range-thumb{width:12px;height:12px;border:0;border-radius:50%;background:#fff}
+#time{margin-left:12px;font-size:15px;color:#ddd;white-space:nowrap;font-variant-numeric:tabular-nums}
+.menu{position:relative}
+.tb{height:44px;padding:0 12px;font-weight:700;font-size:15px}
+#spdList{position:absolute;bottom:52px;right:-8px;display:none;min-width:110px;padding:6px 0;list-style:none;background:rgba(20,20,20,.96);border-radius:6px}
+.menu.open #spdList{display:block}
+#spdList li{padding:8px 18px;text-align:center;cursor:pointer}
+#spdList li:hover{background:rgba(255,255,255,.12)}
+#spdList li.on{color:var(--red);font-weight:700}
+#big{position:absolute;top:50%;left:50%;width:84px;height:84px;margin:-42px 0 0 -42px;display:grid;place-items:center;border-radius:50%;background:rgba(0,0,0,.55);border:2px solid rgba(255,255,255,.85);opacity:0;pointer-events:none;transition:opacity .2s}
+#big svg{width:44px;height:44px}
+.paused #big{opacity:1;pointer-events:auto}
+#spin{position:absolute;top:50%;left:50%;width:64px;height:64px;margin:-32px 0 0 -32px;border:5px solid rgba(255,255,255,.2);border-top-color:var(--red);border-radius:50%;opacity:0;pointer-events:none;transition:opacity .2s;animation:sp .9s linear infinite}
+.loading #spin{opacity:1}
+.loading #big{opacity:0}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){#spin{animation-duration:2.5s}}
+#flash{position:absolute;top:28%;left:50%;transform:translateX(-50%);padding:8px 20px;border-radius:30px;background:rgba(0,0,0,.65);font-size:20px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .25s}
+#flash.on{opacity:1}
+#toast{position:absolute;left:calc(24px + env(safe-area-inset-left));bottom:calc(112px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:14px;padding:10px 12px 10px 18px;border-left:4px solid var(--red);border-radius:6px;background:rgba(20,20,20,.94);opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .3s,transform .3s}
+#toast.on{opacity:1;transform:none;pointer-events:auto}
+#restart{padding:6px 10px;border-radius:3px;background:#fff;color:#000;font-size:13px;font-weight:700}
+#err{position:absolute;inset:0;display:none;place-items:center;padding:24px;text-align:center;background:#000}
+.failed #err{display:grid}
+#err h2{font-size:26px}
+#err p{max-width:520px;margin-top:10px;color:#aaa;word-break:break-word}
+@media (max-width:600px){.top-bar,.bottom{padding-left:12px;padding-right:12px}.ib{width:40px;height:40px}#time{font-size:13px;margin-left:6px}}
+@media (hover:none){#vol,.vg #mute{display:none}}
+</style>
+</head>
+<body>
+<div id="player" class="loading paused">
+  <video id="v" playsinline preload="metadata"></video>
+  <div class="shade t ui"></div><div class="shade b ui"></div>
+  <div class="top-bar ui"><button id="back" class="ib" aria-label="Go back"></button><h1 id="title"></h1></div>
+  <button id="big" aria-label="Play"></button>
+  <div id="spin"></div>
+  <div id="flash"></div>
+  <div id="toast"><span id="toastText"></span><button id="restart">Start over</button></div>
+  <div id="err"><div><h2>Can't play this video</h2><p id="errMsg"></p></div></div>
+  <div class="bottom ui">
+    <div id="bar"><div class="trk"><div id="buf"></div><div id="fill"></div></div><div id="thumb"></div><div id="tip">0:00</div></div>
+    <div class="row">
+      <button id="pp" class="ib" aria-label="Play or pause"></button>
+      <button id="rw" class="ib" aria-label="Back 10 seconds"></button>
+      <button id="ff" class="ib" aria-label="Forward 10 seconds"></button>
+      <div class="vg"><button id="mute" class="ib" aria-label="Mute"></button><input id="vol" type="range" min="0" max="1" step="0.02" value="1" aria-label="Volume"></div>
+      <span id="time">0:00 / 0:00</span>
+      <span class="sp"></span>
+      <div class="menu"><button id="spd" class="tb" aria-label="Playback speed">1x</button><ul id="spdList"></ul></div>
+      <button id="fs" class="ib" aria-label="Fullscreen"></button>
+    </div>
+  </div>
+</div>
+<script>
+(() => {
+  const $ = s => document.querySelector(s), v = $('#v'), P = $('#player'), bar = $('#bar'), V = $('#vol');
+  const q = new URLSearchParams(location.search), src = q.get('source');
+  const nameOf = () => { try { return decodeURIComponent(src.split(/[?#]/)[0].split('/').pop()) } catch { return '' } };
+  const title = q.get('name') || (src && nameOf()) || 'Untitled';
+  $('#title').textContent = title; document.title = title;
+
+  // ---- icons
+  const ring = '<path d="M12 5V2L7 6l5 4V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z"/>';
+  const I = {
+    play: '<path d="M8 5v14l11-7z"/>', pause: '<path d="M6 5h4v14H6zM14 5h4v14h-4z"/>',
+    back: '<path d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20z"/>',
+    rw: ring + '<text x="12" y="16.2" font-size="7" font-weight="700" text-anchor="middle" font-family="Arial">10</text>',
+    ff: '<g transform="translate(24 0) scale(-1 1)">' + ring + '</g><text x="12" y="16.2" font-size="7" font-weight="700" text-anchor="middle" font-family="Arial">10</text>',
+    vol: '<path d="M3 9v6h4l5 5V4L7 9H3z"/><path d="M16.5 12a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/><path d="M14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/>',
+    mute: '<path d="M3 9v6h4l5 5V4L7 9H3z"/><path d="M16 9.4 17.4 8l2.6 2.6L22.6 8 24 9.4 21.4 12l2.6 2.6-1.4 1.4-2.6-2.6L17.4 16 16 14.6l2.6-2.6z"/>',
+    fs: '<path d="M5 5h5v2H7v3H5zM14 5h5v5h-2V7h-3zM5 14h2v3h3v2H5zM17 14h2v5h-5v-2h3z"/>',
+    fsx: '<path d="M9 5v4H5v2h6V5zM15 5v6h6V9h-4V5zM5 15v2h4v4h2v-6zM15 15v6h2v-4h4v-2z"/>'
+  };
+  const icon = (el, k) => $(el).innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor">' + I[k] + '</svg>';
+  icon('#back', 'back'); icon('#big', 'play'); icon('#pp', 'play'); icon('#rw', 'rw'); icon('#ff', 'ff'); icon('#mute', 'vol'); icon('#fs', 'fs');
+  if (history.length <= 1) $('#back').style.display = 'none';
+
+  // ---- helpers
+  const fmt = s => {
+    if (!isFinite(s)) return '0:00'; s = Math.floor(s);
+    const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = String(s % 60).padStart(2, '0');
+    return h ? `${h}:${String(m).padStart(2, '0')}:${x}` : `${m}:${x}`;
+  };
+  let flashT, toastT;
+  const flash = t => { const f = $('#flash'); f.textContent = t; f.classList.add('on'); clearTimeout(flashT); flashT = setTimeout(() => f.classList.remove('on'), 700) };
+  const toast = t => { $('#toastText').textContent = t; $('#toast').classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => $('#toast').classList.remove('on'), 6000) };
+  const fail = m => { P.classList.remove('loading'); P.classList.add('failed'); $('#errMsg').textContent = m };
+
+  if (!src) { fail('No video was provided. Open this page as player.html?source=https://example.com/video.mp4&name=My%20Video'); return }
+
+  // ---- saved progress (keyed by source URL)
+  const KEY = 'player:progress:' + src;
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(KEY)) } catch { return null } },
+    set(t) { try { localStorage.setItem(KEY, JSON.stringify({ t, d: v.duration, at: Date.now() })) } catch {} },
+    clear() { try { localStorage.removeItem(KEY) } catch {} }
+  };
+  let ready = false, lastSave = 0;
+  const save = () => {
+    if (!ready || !isFinite(v.duration)) return;
+    const t = v.currentTime;
+    (t < 5 || t > v.duration - 10) ? store.clear() : store.set(t);
+  };
+
+  // ---- load source (native, or hls.js for .m3u8 where unsupported)
+  if (/\.m3u8($|[?#])/i.test(src) && !v.canPlayType('application/vnd.apple.mpegurl')) {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.8/hls.min.js';
+    s.onload = () => { if (window.Hls && Hls.isSupported()) { const h = new Hls(); h.loadSource(src); h.attachMedia(v) } else fail('This browser cannot play HLS streams.') };
+    s.onerror = () => fail('Could not load the HLS library.');
+    document.head.appendChild(s);
+  } else v.src = src;
+  v.play().catch(() => {});
+
+  v.addEventListener('loadedmetadata', () => {
+    const s = store.get();
+    if (s && s.t > 5 && s.t < v.duration - 10) { v.currentTime = s.t; toast('Resuming from ' + fmt(s.t)) }
+    ready = true; draw();
+  });
+  $('#restart').onclick = () => { v.currentTime = 0; $('#toast').classList.remove('on'); store.clear(); v.play().catch(() => {}) };
+  v.addEventListener('timeupdate', () => { if (Date.now() - lastSave > 2000) { lastSave = Date.now(); save() } });
+  ['pause', 'seeked'].forEach(e => v.addEventListener(e, save));
+  addEventListener('pagehide', save);
+  document.addEventListener('visibilitychange', () => document.hidden && save());
+  v.addEventListener('ended', () => { store.clear(); P.classList.remove('idle') });
+
+  // ---- state + UI sync
+  const toggle = () => v.paused ? v.play().catch(() => {}) : v.pause();
+  const skip = d => { v.currentTime = Math.min(v.duration || 0, Math.max(0, v.currentTime + d)); flash((d > 0 ? '+' : '−') + Math.abs(d) + 's') };
+  let drag = false;
+  const draw = () => {
+    const d = v.duration, p = d ? v.currentTime / d : 0;
+    $('#fill').style.width = $('#thumb').style.left = p * 100 + '%';
+    $('#time').textContent = fmt(v.currentTime) + ' / ' + fmt(d);
+    let end = 0;
+    for (let i = 0; i < v.buffered.length; i++) if (v.buffered.start(i) <= v.currentTime + .5) end = Math.max(end, v.buffered.end(i));
+    $('#buf').style.width = d ? end / d * 100 + '%' : '0';
+  };
+  (function tick() { if (!drag) draw(); requestAnimationFrame(tick) })();
+  const sync = () => { P.classList.toggle('paused', v.paused); icon('#pp', v.paused ? 'play' : 'pause') };
+  ['play', 'pause'].forEach(e => v.addEventListener(e, sync));
+  ['waiting', 'seeking'].forEach(e => v.addEventListener(e, () => P.classList.add('loading')));
+  ['playing', 'canplay', 'seeked'].forEach(e => v.addEventListener(e, () => P.classList.remove('loading')));
+  v.addEventListener('error', () => fail(({ 2: 'A network error interrupted the video.', 3: 'The video file could not be decoded.', 4: 'The video is unavailable or its format is not supported.' })[v.error && v.error.code] || 'Something went wrong while loading the video.'));
+  sync();
+
+  // ---- seek bar
+  const pos = e => { const r = bar.getBoundingClientRect(); return Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)) };
+  const tip = p => { const w = bar.clientWidth; $('#tip').style.left = Math.min(Math.max(p * w, 28), w - 28) + 'px'; $('#tip').textContent = fmt(p * (v.duration || 0)) };
+  const preview = p => { $('#fill').style.width = $('#thumb').style.left = p * 100 + '%'; $('#time').textContent = fmt(p * v.duration) + ' / ' + fmt(v.duration) };
+  bar.addEventListener('pointerdown', e => { drag = true; bar.classList.add('drag'); bar.setPointerCapture(e.pointerId); const p = pos(e); tip(p); preview(p) });
+  bar.addEventListener('pointermove', e => { const p = pos(e); tip(p); if (drag) preview(p) });
+  bar.addEventListener('pointerup', e => { if (!drag) return; drag = false; bar.classList.remove('drag'); if (v.duration) v.currentTime = pos(e) * v.duration });
+
+  // ---- buttons
+  $('#pp').onclick = $('#big').onclick = toggle;
+  $('#rw').onclick = () => skip(-10);
+  $('#ff').onclick = () => skip(10);
+  $('#back').onclick = () => history.back();
+  const mute = () => { v.muted = !v.muted; if (!v.muted && v.volume === 0) v.volume = .5 };
+  $('#mute').onclick = mute;
+  V.oninput = () => { v.muted = false; v.volume = +V.value };
+  const vol = d => { v.muted = false; v.volume = Math.min(1, Math.max(0, v.volume + d)); flash('Volume ' + Math.round(v.volume * 100) + '%') };
+  v.addEventListener('volumechange', () => {
+    const m = v.muted || v.volume === 0;
+    icon('#mute', m ? 'mute' : 'vol'); V.value = m ? 0 : v.volume; V.style.setProperty('--v', V.value * 100 + '%');
+    try { localStorage.setItem('player:volume', v.volume) } catch {}
+  });
+  try { const sv = localStorage.getItem('player:volume'); if (sv !== null) v.volume = +sv } catch {}
+  v.dispatchEvent(new Event('volumechange'));
+
+  const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
+  const toggleFS = () => {
+    if (fsEl()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    else if (P.requestFullscreen) P.requestFullscreen();
+    else if (P.webkitRequestFullscreen) P.webkitRequestFullscreen();
+    else if (v.webkitEnterFullscreen) v.webkitEnterFullscreen();
+  };
+  $('#fs').onclick = toggleFS;
+  ['fullscreenchange', 'webkitfullscreenchange'].forEach(e => document.addEventListener(e, () => icon('#fs', fsEl() ? 'fsx' : 'fs')));
+
+  // ---- speed menu
+  const menu = $('.menu'), list = $('#spdList');
+  [0.5, 0.75, 1, 1.25, 1.5, 2].forEach(r => {
+    const li = document.createElement('li'); li.textContent = r === 1 ? 'Normal' : r + 'x'; li.dataset.r = r;
+    li.onclick = () => { v.playbackRate = r; $('#spd').textContent = r + 'x'; list.querySelectorAll('li').forEach(x => x.classList.toggle('on', x === li)); menu.classList.remove('open') };
+    if (r === 1) li.classList.add('on'); list.appendChild(li);
+  });
+  $('#spd').onclick = e => { e.stopPropagation(); menu.classList.toggle('open') };
+  document.addEventListener('click', () => menu.classList.remove('open'));
+  document.querySelectorAll('button').forEach(b => b.addEventListener('click', () => b.blur()));
+
+  // ---- auto-hide controls
+  let hideT, wasIdle = false;
+  P.addEventListener('pointerdown', () => wasIdle = P.classList.contains('idle'));
+  const wake = () => { P.classList.remove('idle'); clearTimeout(hideT); hideT = setTimeout(() => { if (!v.paused && !drag && !menu.classList.contains('open')) P.classList.add('idle') }, 3000) };
+  ['pointermove', 'pointerdown'].forEach(e => P.addEventListener(e, wake));
+  v.addEventListener('pause', wake); v.addEventListener('play', wake); wake();
+
+  // ---- click: play/pause; double-click: skip sides / fullscreen middle
+  let ct;
+  P.addEventListener('click', e => {
+    if (e.target.closest('.top-bar,.bottom,#toast,#err,#big')) return;
+    if (e.pointerType === 'touch' && wasIdle) return;
+    clearTimeout(ct); ct = setTimeout(toggle, 230);
+  });
+  P.addEventListener('dblclick', e => {
+    if (e.target.closest('.top-bar,.bottom,#toast,#err,#big')) return;
+    clearTimeout(ct);
+    const x = e.clientX / innerWidth;
+    x < .33 ? skip(-10) : x > .66 ? skip(10) : toggleFS();
+  });
+
+  // ---- keyboard
+  document.addEventListener('keydown', e => {
+    if (e.metaKey || e.ctrlKey || e.altKey || e.target.tagName === 'INPUT') return;
+    const k = e.key; let h = true;
+    if (k === ' ' || k === 'k') toggle();
+    else if (k === 'ArrowLeft' || k === 'j') skip(-10);
+    else if (k === 'ArrowRight' || k === 'l') skip(10);
+    else if (k === 'ArrowUp') vol(.1);
+    else if (k === 'ArrowDown') vol(-.1);
+    else if (k === 'm') mute();
+    else if (k === 'f') toggleFS();
+    else h = false;
+    if (h) { e.preventDefault(); wake() }
+  });
+})();
+</script>
+</body>
+</html>
